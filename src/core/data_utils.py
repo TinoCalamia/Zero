@@ -88,13 +88,13 @@ def get_unique_objects(
 def map_carbon_footprint(unique_detected_objects):
     """Map carbon data to detected objects."""
     # Pre-process ghg data
-    ghg_data = pd.read_csv(os.path.join(setup.data_dir, setup.ghg_data_file_name)).drop(
-        "Unnamed: 8", axis=1
-    )
+    ghg_data = pd.read_csv(
+        os.path.join("src", setup.data_dir, setup.ghg_data_file_name)
+    ).drop("Unnamed: 8", axis=1)
     ghg_data.columns = setup.column_names
     ghg_data["total"] = ghg_data.iloc[:, 1:].sum(axis=1)
     # Convert Words to singular
-    ghg_data.product = np.array(singularize_words(ghg_data.product))
+    ghg_data["product"] = np.array(singularize_words(ghg_data["product"]))
 
     # Create new dataframe
     foodprint_df = pd.DataFrame()

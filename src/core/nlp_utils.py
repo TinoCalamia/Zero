@@ -21,4 +21,5 @@ def singularize_words(data):
     lemmatized_words = [wnl.lemmatize(token) for token in tokens]
 
     singular_words = [stem(x) for x in lemmatized_words]
+
     return singular_words
