@@ -1,6 +1,6 @@
-FROM python:latest as python
+FROM python:3.8.7-slim-buster as python
 
-LABEL maintainer="calamia.tino@gmail.com" service=da_vinci
+LABEL maintainer="calamia.tino@gmail.com" service=zero
 
 WORKDIR /app
 
@@ -16,8 +16,7 @@ RUN apt-get update && \
     pip install seaborn nb_black pyarrow
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -&& \
-    apt-get install -yqq --no-install-recommends nodejs && \
-    jupyter labextension install jupyterlab-spreadsheet
+    apt-get install -yqq --no-install-recommends nodejs
 
 # Copy .src folder file to workdir /app
 COPY . /app

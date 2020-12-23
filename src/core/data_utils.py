@@ -1,4 +1,5 @@
 """Utility functions for data processing."""
+import os
 import time
 
 import numpy as np
@@ -6,6 +7,8 @@ import pandas as pd
 import tensorflow as tf
 
 from core.image_utils import display_image, draw_boxes, load_img
+from core.nlp_utils import singularize_words
+from utils.setup import object_detection_setup_config as setup
 
 
 def run_detector(detector, path, show_image=False):
@@ -80,3 +83,31 @@ def get_unique_objects(
 ):
     """Get list with unique objects above threshold."""
     return dataframe[dataframe[target_column] > threshold][object_column].unique()
+
+
+def map_carbon_footprint(unique_detected_objects):
+    """Map carbon data to detected objects."""
+    # Pre-process ghg data
+    ghg_data = pd.read_csv(os.path.join(setup.data_dir, setup.ghg_data_file_name)).drop(
+        "Unnamed: 8", axis=1
+    )
+    ghg_data.columns = setup.column_names
+    ghg_data["total"] = ghg_data.iloc[:, 1:].sum(axis=1)
+    # Convert Words to singular
+    ghg_data.product = np.array(singularize_words(ghg_data.product))
+
+    # Create new dataframe
+    foodprint_df = pd.DataFrame()
+    foodprint_df["detected_object"] = np.array(unique_detected_objects)
+    foodprint_df["measurement"] = None
+    foodprint_df["amount"] = None
+    # Merge carbon foodprint
+    foodprint_df = foodprint_df.merge(
+        ghg_data[["product", "total"]],
+        left_on="detected_object",
+        right_on="product",
+        how="left",
+    )
+    foodprint_df.rename(columns={"total": "kg_carbon_per_kg"}, inplace=True)
+
+    return foodprint_df

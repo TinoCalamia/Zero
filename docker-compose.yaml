@@ -4,9 +4,9 @@ services:
   nbk:
     build: .
     volumes:
-      - /Users/agostinocalamia/Documents/da_vinci:/app
+      - /Users/agostinocalamia/Documents/zero:/app
     networks:
-      - da_vinci
+      - zero
     environment:
       - JUPYTER_ENABLE_LAB:"yes"
     ports:
@@ -14,4 +14,4 @@ services:
     entrypoint: ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root"]
 
 networks:
-  da_vinci:
+  zero:
