@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Carbon Footprint</title>
+</head>
+
+<body>
+
+    {% for table in tables %}
+    {{ table|safe }}
+    {% endfor %}
+</body>
+
+</html>

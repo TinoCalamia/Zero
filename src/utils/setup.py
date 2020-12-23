@@ -73,5 +73,5 @@ class Setup:
         self.set_attributes()
 
 
-object_detection_setup_config = Setup("utils/CONFIG.yaml")
+object_detection_setup_config = Setup("src/utils/CONFIG.yaml")
 object_detection_setup_config.load_and_process_config()
