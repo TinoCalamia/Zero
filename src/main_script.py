@@ -3,6 +3,7 @@ import os
 import pickle
 
 import tensorflow as tf
+import tensorflow_hub as hub
 
 from core.data_utils import (
     get_results_with_score,
@@ -17,9 +18,15 @@ image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fruits_ve
 downloaded_image_path = download_and_resize_image(image_url, 1280, 856, False)
 
 # Load model
-detector = tf.saved_model.load(
-    os.path.join(setup.model_dir, setup.model_name)
-).signatures["default"]
+if len(os.listdir(os.path.join(setup.model_dir, setup.model_name))) == 0:
+    print("Directory is empty. Load model from Tensorflow Hub")
+    detector = hub.load(setup.module_handle).signatures["default"]
+
+else:
+    print("Directory is not empty. Use local model.")
+    detector = tf.saved_model.load(
+        os.path.join(setup.model_dir, setup.model_name)
+    ).signatures["default"]
 
 
 def execute_script():
