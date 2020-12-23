@@ -1,0 +1,18 @@
+column_names:
+  [
+    "product",
+    "land_use_chage",
+    "animal_feed",
+    "farm",
+    "processing",
+    "transport",
+    "packaging",
+    "retail",
+  ]
+data_dir: data
+ghg_data_file_name: ghg_data.csv
+module_handle: https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1
+
+environment_variables:
+  - env_name: ZERO_ENV
+    config_name: section
