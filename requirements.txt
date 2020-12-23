@@ -1,0 +1,6 @@
+numpy==1.19.4
+pandas==1.1.5
+PIL==7.0.0
+six==1.15.0
+tensorflow==2.4.0
+tensorflow_hub==0.10.0
