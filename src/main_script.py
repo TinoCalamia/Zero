@@ -1,5 +1,8 @@
 """Run prediction for image."""
-import tensorflow_hub as hub
+import os
+import pickle
+
+import tensorflow as tf
 
 from core.data_utils import (
     get_results_with_score,
@@ -14,9 +17,13 @@ image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fruits_ve
 downloaded_image_path = download_and_resize_image(image_url, 1280, 856, False)
 
 # Load model
-detector = hub.load(setup.module_handle).signatures["default"]
+detector = tf.saved_model.load(
+    os.path.join(setup.model_dir, setup.model_name)
+).signatures["default"]
 
-if __name__ == "__main__":
+
+def execute_script():
+    """Execute all steps."""
     # Make detection
     detected_objects_dict = run_detector(detector, downloaded_image_path, False)
     # Make df with objects and scores
@@ -25,6 +32,9 @@ if __name__ == "__main__":
     unique_detected_objects = get_unique_objects(detection_df)
     # Create carbon df
     carbon_df = map_carbon_footprint(unique_detected_objects)
-    print(carbon_df)
-    # Calculate ghg based on piece or weight
-    ##
+
+    with open("src/temp_df.pickle", "wb") as file:
+        pickle.dump(carbon_df, file)
+
+
+execute_script()
