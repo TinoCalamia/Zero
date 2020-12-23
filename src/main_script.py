@@ -27,3 +27,4 @@ if __name__ == "__main__":
     carbon_df = map_carbon_footprint(unique_detected_objects)
     print(carbon_df)
     # Calculate ghg based on piece or weight
+    ##
