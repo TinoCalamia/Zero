@@ -3,12 +3,11 @@
 
 import os
 import pickle
-import subprocess
 
 from flask import Flask, flash, redirect, render_template, request
 from werkzeug.utils import secure_filename
 
-from src.core.main_script import execute_script
+from src.main_script import execute_script
 
 app = Flask(__name__)
 

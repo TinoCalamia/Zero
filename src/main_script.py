@@ -18,7 +18,7 @@ image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fruits_ve
 downloaded_image_path = download_and_resize_image(image_url, 1280, 856, False)
 
 # Load model
-if len(os.listdir(os.path.join(setup.model_dir, setup.model_name))) == 0:
+if len(os.listdir("src", os.path.join(setup.model_dir, setup.model_name))) == 0:
     print("Directory is empty. Load model from Tensorflow Hub")
     detector = hub.load(setup.module_handle).signatures["default"]
 
