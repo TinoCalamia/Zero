@@ -14,22 +14,23 @@ from src.core.data_utils import (
 from src.core.image_utils import download_and_resize_image
 from src.utils.setup import object_detection_setup_config as setup
 
+
 image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fruits_veggies.png/1200px-Fruits_veggies.png"
 downloaded_image_path = download_and_resize_image(image_url, 1280, 856, False)
 
 # Load model
-if len(os.listdir("src", os.path.join(setup.model_dir, setup.model_name))) == 0:
+if len(os.listdir(os.path.join("src", setup.model_dir, setup.model_name))) == 0:
     print("Directory is empty. Load model from Tensorflow Hub")
     detector = hub.load(setup.module_handle).signatures["default"]
 
 else:
     print("Directory is not empty. Use local model.")
     detector = tf.saved_model.load(
-        os.path.join(setup.model_dir, setup.model_name)
+        os.path.join("src", setup.model_dir, setup.model_name)
     ).signatures["default"]
 
 
-def execute_script():
+def execute_object_detection_script():
     """Execute all steps."""
     print("Start execution.")
     # Make detection
@@ -45,6 +46,3 @@ def execute_script():
         pickle.dump(carbon_df, file)
 
     print("Finished execution.")
-
-
-execute_script()

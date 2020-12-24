@@ -11,6 +11,22 @@ from src.core.nlp_utils import singularize_words
 from src.utils.setup import object_detection_setup_config as setup
 
 
+def time_it(f):
+    """Time function."""
+
+    def timed(*args, **kw):
+
+        ts = time.time()
+        result = f(*args, **kw)
+        te = time.time()
+
+        print(f"func {f.__name__} took: {te - ts: 2.4f} seconds")
+        return result
+
+    return timed
+
+
+@time_it
 def run_detector(detector, path, show_image=False):
     """
     Run detector and return detection summary.
@@ -50,6 +66,7 @@ def run_detector(detector, path, show_image=False):
     return result
 
 
+@time_it
 def get_results_with_score(result, object_column="object", target_column="score"):
     """
     Convert detection dictionary to dataframe.
@@ -78,6 +95,7 @@ def get_results_with_score(result, object_column="object", target_column="score"
     return result_df.sort_values(by=target_column, ascending=False)
 
 
+@time_it
 def get_unique_objects(
     dataframe, object_column="object", target_column="score", threshold=0.5
 ):
@@ -85,16 +103,17 @@ def get_unique_objects(
     return dataframe[dataframe[target_column] > threshold][object_column].unique()
 
 
+@time_it
 def map_carbon_footprint(unique_detected_objects):
     """Map carbon data to detected objects."""
     # Pre-process ghg data
-    ghg_data = pd.read_csv(os.path.join(setup.data_dir, setup.ghg_data_file_name)).drop(
-        "Unnamed: 8", axis=1
-    )
+    ghg_data = pd.read_csv(
+        os.path.join("src", setup.data_dir, setup.ghg_data_file_name)
+    ).drop("Unnamed: 8", axis=1)
     ghg_data.columns = setup.column_names
     ghg_data["total"] = ghg_data.iloc[:, 1:].sum(axis=1)
     # Convert Words to singular
-    ghg_data.product = np.array(singularize_words(ghg_data.product))
+    ghg_data.product = np.array(singularize_words(ghg_data["product"]))
 
     # Create new dataframe
     foodprint_df = pd.DataFrame()

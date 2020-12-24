@@ -1,6 +1,8 @@
 """Utility functions for displaying images."""
 
 import tempfile
+import ssl
+import certifi
 
 # For downloading the image.
 import matplotlib.pyplot as plt
@@ -44,7 +46,7 @@ def download_and_resize_image(url, new_width=256, new_height=256, display=False)
 
     suffix = str("." + url[-3:])
     _, filename = tempfile.mkstemp(suffix=suffix)
-    response = urlopen(url)
+    response = urlopen(url, context=ssl.create_default_context(cafile=certifi.where()))
     image_data = response.read()
     image_data = BytesIO(image_data)
     pil_image = Image.open(image_data)

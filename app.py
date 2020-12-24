@@ -7,7 +7,7 @@ import pickle
 
 from flask import Flask, flash, redirect, render_template, request
 from werkzeug.utils import secure_filename
-from src.main_script import execute_script
+from src.main_script import execute_object_detection_script
 
 app = Flask(__name__)
 
@@ -38,6 +38,7 @@ def allowed_file(filename):
 
 @app.route("/")
 def upload_form():
+    """Show upload form."""
     return render_template("upload.html")
 
 
@@ -48,7 +49,7 @@ def script_output():
     with open("src/temp_df.pickle", "rb") as file:
         output = pickle.load(file)
 
-    os.remove("temp_df.pickle")
+    os.remove("src/temp_df.pickle")
 
     return render_template("output.html", tables=[output.to_html(classes="footprint")])
 
@@ -72,7 +73,7 @@ def upload_file():
             flash("File successfully uploaded")
 
             # Execute object detection and carbon mapping
-            execute_script()
+            execute_object_detection_script()
 
             #######
             # ASK USER FOR INPUT HERE
