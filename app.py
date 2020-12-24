@@ -48,8 +48,8 @@ def script_output():
 
 
 @app.route("/")
-def run_script(command):
-    subprocess.run(command)
+def run_script():
+    return subprocess.run(["python", "src/main_script.py"])
 
 
 @app.route("/", methods=["POST"])
@@ -71,7 +71,7 @@ def upload_file():
             flash("File successfully uploaded")
 
             # Execute object detection and carbon mapping
-            run_script(["python", "src/main_script.py"])
+            run_script()
 
             #######
             # ASK USER FOR INPUT HERE
