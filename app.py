@@ -70,9 +70,9 @@ def upload_file():
             # Execute object detection and carbon mapping
             execute_script()
 
-            #######
+            ######
             # ASK USER FOR INPUT HERE
-            #######
+            ######
 
             # Return reults to user
             return script_output()
