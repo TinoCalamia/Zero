@@ -8,6 +8,8 @@ import subprocess
 from flask import Flask, flash, redirect, render_template, request
 from werkzeug.utils import secure_filename
 
+from src.core.main_script import execute_script
+
 app = Flask(__name__)
 
 app.secret_key = "secret key"
@@ -47,11 +49,6 @@ def script_output():
     return render_template("output.html", tables=[output.to_html(classes="footprint")])
 
 
-@app.route("/")
-def run_script():
-    return subprocess.run(["python", "src/main_script.py"])
-
-
 @app.route("/", methods=["POST"])
 def upload_file():
     """Upload file."""
@@ -71,7 +68,7 @@ def upload_file():
             flash("File successfully uploaded")
 
             # Execute object detection and carbon mapping
-            run_script()
+            execute_script()
 
             #######
             # ASK USER FOR INPUT HERE

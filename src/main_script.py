@@ -31,6 +31,7 @@ else:
 
 def execute_script():
     """Execute all steps."""
+    print("Start execution.")
     # Make detection
     detected_objects_dict = run_detector(detector, downloaded_image_path, False)
     # Make df with objects and scores
@@ -43,5 +44,4 @@ def execute_script():
     with open("src/temp_df.pickle", "wb") as file:
         pickle.dump(carbon_df, file)
 
-
-execute_script()
+    print("Finished execution.")
