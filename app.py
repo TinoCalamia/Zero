@@ -1,6 +1,7 @@
 """Create web app for uploading pictures."""
 # https://medium.com/dev-genius/a-simple-way-to-build-flask-file-upload-1ccb9462bc2c
 
+import logging
 import os
 import pickle
 import subprocess
@@ -24,6 +25,11 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
+
+if __name__ != "__main__":
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 
 def allowed_file(filename):
