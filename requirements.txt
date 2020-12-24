@@ -3,7 +3,7 @@ flask==1.1.2
 gunicorn==19.9.0
 itsdangerous==1.1.0
 Jinja2==2.10.1
-logging==0.4.9.6
+logging
 MarkupSafe==1.1.1
 nltk==3.5
 numpy==1.19.4
