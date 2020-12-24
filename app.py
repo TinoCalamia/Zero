@@ -41,7 +41,7 @@ def upload_form():
     return render_template("upload.html")
 
 
-@app.route("/")
+@app.route("/uploaded")
 def script_output():
     """Execute main script and return dataframe in html format."""
 
@@ -53,7 +53,6 @@ def script_output():
     return render_template("output.html", tables=[output.to_html(classes="footprint")])
 
 
-@app.route("/")
 def run_script():
     return subprocess.run(["python", "src/main_script.py"])
 
