@@ -45,3 +45,6 @@ def execute_script():
         pickle.dump(carbon_df, file)
 
     print("Finished execution.")
+
+
+execute_script()

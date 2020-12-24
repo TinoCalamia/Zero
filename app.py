@@ -3,11 +3,10 @@
 
 import os
 import pickle
+import subprocess
 
 from flask import Flask, flash, redirect, render_template, request
 from werkzeug.utils import secure_filename
-
-from src.main_script import execute_script
 
 app = Flask(__name__)
 
@@ -48,6 +47,11 @@ def script_output():
     return render_template("output.html", tables=[output.to_html(classes="footprint")])
 
 
+@app.route("/")
+def run_script():
+    return subprocess.run(["python", "src/main_script.py"])
+
+
 @app.route("/", methods=["POST"])
 def upload_file():
     """Upload file."""
@@ -67,12 +71,11 @@ def upload_file():
             flash("File successfully uploaded")
 
             # Execute object detection and carbon mapping
-            test = execute_script()
-            print(test)
+            run_script()
 
-            ######
+            #######
             # ASK USER FOR INPUT HERE
-            ######
+            #######
 
             # Return reults to user
             return script_output()
