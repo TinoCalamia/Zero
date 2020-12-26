@@ -13,10 +13,5 @@ services:
       - "0.0.0.0:8888:8888"
     entrypoint: ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root"]
 
-  redis:
-    image: redis:alpine
-    expose:
-      - "6379"
-
 networks:
   zero:
