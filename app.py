@@ -4,12 +4,15 @@
 import logging
 import os
 import pickle
+from rq import Queue
+from worker import conn
 
 from flask import Flask, flash, redirect, render_template, request
 from werkzeug.utils import secure_filename
 from src.main_script import execute_object_detection_script
 
 app = Flask(__name__)
+q = Queue(connection=conn)
 
 app.secret_key = "secret key"
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
@@ -73,14 +76,14 @@ def upload_file():
             flash("File successfully uploaded")
 
             # Execute object detection and carbon mapping
-            execute_object_detection_script()
+            q.enqueue(execute_object_detection_script, "http://heroku.com")
 
             #######
             # ASK USER FOR INPUT HERE
             #######
 
             # Return reults to user
-            return script_output()
+            return q.enqueue(script_output, "http://heroku.com")
 
         else:
             flash("Allowed file types are txt, pdf, png, jpg, jpeg, gif")
