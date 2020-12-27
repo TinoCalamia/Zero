@@ -76,14 +76,14 @@ def upload_file():
             flash("File successfully uploaded")
 
             # Execute object detection and carbon mapping
-            q.enqueue(execute_object_detection_script, "http://heroku.com")
+            execute_object_detection_script()
 
             #######
             # ASK USER FOR INPUT HERE
             #######
 
             # Return reults to user
-            return q.enqueue(script_output, "http://heroku.com")
+            return script_output()
 
         else:
             flash("Allowed file types are txt, pdf, png, jpg, jpeg, gif")
