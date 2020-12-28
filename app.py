@@ -7,7 +7,7 @@ import pickle
 from rq import Queue
 from worker import conn
 
-from flask import Flask, flash, redirect, render_template, request
+from flask import Flask, flash, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
 from src.main_script import execute_object_detection_script
 
@@ -45,18 +45,6 @@ def upload_form():
     return render_template("upload.html")
 
 
-@app.route("/uploaded")
-def script_output():
-    """Execute main script and return dataframe in html format."""
-
-    with open("src/temp_df.pickle", "rb") as file:
-        output = pickle.load(file)
-
-    os.remove("src/temp_df.pickle")
-
-    return render_template("output.html", tables=[output.to_html(classes="footprint")])
-
-
 @app.route("/", methods=["POST"])
 def upload_file():
     """Upload file."""
@@ -74,20 +62,44 @@ def upload_file():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             flash("File successfully uploaded")
+            file.seek(0)
 
             # Execute object detection and carbon mapping
-            execute_object_detection_script()
+            execute_object_detection_script(file)
 
-            #######
-            # ASK USER FOR INPUT HERE
-            #######
-
-            # Return reults to user
-            return script_output()
+            return redirect(url_for("get_user_input"))
 
         else:
             flash("Allowed file types are txt, pdf, png, jpg, jpeg, gif")
             return redirect(request.url)
+
+
+@app.route("/input", methods=["GET", "POST"])
+def get_user_input():
+    if request.method == "POST":
+        return redirect(url_for("script_output"))
+
+    with open("src/temp_df.pickle", "rb") as file:
+        output = pickle.load(file)
+
+    product_list = output["detected_object"].unique()
+    message = "Please enter amount"
+
+    return render_template("input.html", message=message, contacts=product_list)
+
+
+@app.route("/output", methods=["GET", "POST"])
+def script_output():
+    """Execute main script and return dataframe in html format."""
+
+    with open("src/temp_df.pickle", "rb") as file:
+        output = pickle.load(file)
+
+    output.fillna(0, inplace=True)
+
+    os.remove("src/temp_df.pickle")
+
+    return render_template("output.html", tables=[output.to_html(classes="footprint")])
 
 
 if __name__ == "__main__":

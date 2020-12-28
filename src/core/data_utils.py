@@ -27,7 +27,7 @@ def time_it(f):
 
 
 @time_it
-def run_detector(detector, path, show_image=False):
+def run_detector(detector, image_path, show_image=False):
     """
     Run detector and return detection summary.
 
@@ -42,7 +42,7 @@ def run_detector(detector, path, show_image=False):
     result (dict): Dictionary including detection results
 
     """
-    img = load_img(path)
+    img = load_img(image_path)
     converted_img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
     start_time = time.time()
     result = detector(converted_img)
@@ -126,7 +126,7 @@ def map_carbon_footprint(unique_detected_objects):
         left_on="detected_object",
         right_on="product",
         how="left",
-    )
+    ).drop("product", axis=1)
     foodprint_df.rename(columns={"total": "kg_carbon_per_kg"}, inplace=True)
 
     return foodprint_df

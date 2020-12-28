@@ -11,11 +11,9 @@ from src.core.data_utils import (
     map_carbon_footprint,
     run_detector,
 )
-from src.core.image_utils import download_and_resize_image
+from src.core.image_utils import resize_image
 from src.utils.setup import object_detection_setup_config as setup
 
-image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fruits_veggies.png/1200px-Fruits_veggies.png"
-downloaded_image_path = download_and_resize_image(image_url, 1280, 856, False)
 
 # Load model
 if len(os.listdir(os.path.join("src", setup.model_dir, setup.model_name))) == 0:
@@ -29,12 +27,17 @@ else:
     ).signatures["default"]
 
 
-def execute_object_detection_script():
+def execute_object_detection_script(file, detector=detector):
     """Execute all steps."""
+
+    # image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fruits_veggies.png/1200px-Fruits_veggies.png"
+    image_path = resize_image(file, 1280, 856, False)
 
     print("Start execution.")
     # Make detection
-    detected_objects_dict = run_detector(detector, downloaded_image_path, False)
+    detected_objects_dict = run_detector(
+        detector=detector, image_path=image_path, show_image=False
+    )
     # Make df with objects and scores
     detection_df = get_results_with_score(detected_objects_dict)
     # Create list with unique items
@@ -46,5 +49,3 @@ def execute_object_detection_script():
         pickle.dump(carbon_df, file)
 
     print("Finished execution.")
-
-    return carbon_df
