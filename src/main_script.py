@@ -14,7 +14,6 @@ from src.core.data_utils import (
 from src.core.image_utils import resize_image
 from src.utils.setup import object_detection_setup_config as setup
 
-
 # Load model
 if len(os.listdir(os.path.join("src", setup.model_dir, setup.model_name))) == 0:
     print("Directory is empty. Load model from Tensorflow Hub")
@@ -40,12 +39,10 @@ def execute_object_detection_script(file, detector=detector):
     )
     # Make df with objects and scores
     detection_df = get_results_with_score(detected_objects_dict)
-    # Create list with unique items
+    # Create df with unique items
     unique_detected_objects = get_unique_objects(detection_df)
-    # Create carbon df
-    carbon_df = map_carbon_footprint(unique_detected_objects)
 
     with open("src/temp_df.pickle", "wb") as file:
-        pickle.dump(carbon_df, file)
+        pickle.dump(unique_detected_objects, file)
 
     print("Finished execution.")

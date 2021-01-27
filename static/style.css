@@ -63,8 +63,9 @@ div.settings label {
 div.settings label:after {
   content: ":";
 }
+
 div {
-  display: inline-block;
+  display: block;
 }
 
 div label {

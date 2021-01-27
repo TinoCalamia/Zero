@@ -2,9 +2,11 @@
 import os
 import time
 
+import gspread
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from oauth2client.service_account import ServiceAccountCredentials
 
 from src.core.image_utils import display_image, draw_boxes, load_img
 from src.core.nlp_utils import singularize_words
@@ -100,33 +102,88 @@ def get_unique_objects(
     dataframe, object_column="object", target_column="score", threshold=0.5
 ):
     """Get list with unique objects above threshold."""
-    return dataframe[dataframe[target_column] > threshold][object_column].unique()
+    return (
+        dataframe[dataframe[target_column] > threshold][[object_column]]
+        .drop_duplicates()
+        .rename(columns={object_column: "detected_object"})
+    )
 
 
 @time_it
-def map_carbon_footprint(unique_detected_objects):
+def map_carbon_footprint(output):
     """Map carbon data to detected objects."""
     # Pre-process ghg data
-    ghg_data = pd.read_csv(
-        os.path.join("src", setup.data_dir, setup.ghg_data_file_name)
-    ).drop("Unnamed: 8", axis=1)
-    ghg_data.columns = setup.column_names
-    ghg_data["total"] = ghg_data.iloc[:, 1:].sum(axis=1)
+    ghg_data = get_df_from_spreadsheet("ghg_data")
+    # convert columns to float
+    for column in [
+        "Land use change",
+        "Animal Feed",
+        "Farm",
+        "Processing",
+        "Transport",
+        "Packging",
+        "Retail",
+    ]:
+        ghg_data[column] = ghg_data[column].astype(float)
+
+    ghg_data["total_emission"] = ghg_data.iloc[:, 1:].sum(axis=1)
     # Convert Words to singular
-    ghg_data.product = np.array(singularize_words(ghg_data["product"]))
+    ghg_data["Food product"] = np.array(singularize_words(ghg_data["Food product"]))
 
     # Create new dataframe
-    foodprint_df = pd.DataFrame()
-    foodprint_df["detected_object"] = np.array(unique_detected_objects)
-    foodprint_df["measurement"] = None
-    foodprint_df["amount"] = None
+    foodprint_df = output.copy(deep=True)
     # Merge carbon foodprint
     foodprint_df = foodprint_df.merge(
-        ghg_data[["product", "total"]],
+        ghg_data[["Food product", "total_emission"]],
+        left_on="detected_object",
+        right_on="Food product",
+        how="left",
+    ).drop("Food product", axis=1)
+    foodprint_df.rename(columns={"total_emission": "kg_carbon_per_unit"}, inplace=True)
+
+    # Add average weight per product to calculate emission per "Piece"
+    weight_df = get_df_from_spreadsheet("food_weight_data")
+    weight_df.avg_weight_per_piece = weight_df.avg_weight_per_piece.astype(float)
+    foodprint_df = foodprint_df.merge(
+        weight_df,
+        how="left",
         left_on="detected_object",
         right_on="product",
-        how="left",
     ).drop("product", axis=1)
-    foodprint_df.rename(columns={"total": "kg_carbon_per_kg"}, inplace=True)
+
+    # Calculate total carbon emission
+    foodprint_df["total_carbon_emission"] = np.where(
+        foodprint_df.measurement == "Kg",
+        foodprint_df.amount.astype(float)
+        * foodprint_df.kg_carbon_per_unit.astype(float),
+        np.where(
+            foodprint_df.measurement == "Piece",
+            (foodprint_df.avg_weight_per_piece / 1000)
+            * foodprint_df.kg_carbon_per_unit.astype(float).astype(float),
+            np.nan,
+        ),
+    )
 
     return foodprint_df
+
+
+def get_df_from_spreadsheet(spreadsheet_name):
+    """Generate data from spreadsheet."""
+    scope = [
+        "https://spreadsheets.google.com/feeds",
+        "https://www.googleapis.com/auth/drive",
+    ]
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        "src/zero-carbon-emission-ab5ea26380ab.json", scope
+    )  # Your json file here
+
+    gc = gspread.authorize(credentials)
+    wks = gc.open(spreadsheet_name).sheet1
+
+    data = wks.get_all_values()
+    headers = data.pop(0)
+
+    df = pd.DataFrame(data, columns=headers)
+
+    return df

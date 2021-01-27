@@ -4,12 +4,16 @@
 import logging
 import os
 import pickle
-from rq import Queue
-from worker import conn
 
+import numpy as np
+import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, url_for
+from rq import Queue
 from werkzeug.utils import secure_filename
+
+from src.core.data_utils import map_carbon_footprint
 from src.main_script import execute_object_detection_script
+from worker import conn
 
 app = Flask(__name__)
 q = Queue(connection=conn)
@@ -92,14 +96,39 @@ def get_user_input():
 def script_output():
     """Execute main script and return dataframe in html format."""
 
+    req = request.form
+
+    for key in req.keys():
+        if key == "Amount":
+            amount = pd.Series(req.getlist(key))
+        if key == "Count":
+            count = pd.Series(req.getlist(key))
+
     with open("src/temp_df.pickle", "rb") as file:
         output = pickle.load(file)
 
-    output.fillna(0, inplace=True)
+    output["amount"] = amount
+    output["measurement"] = count
+
+    # Create carbon df
+    carbon_df = map_carbon_footprint(output)
 
     os.remove("src/temp_df.pickle")
 
-    return render_template("output.html", tables=[output.to_html(classes="footprint")])
+    # Calculate overall carbon emission
+    summed_carbon_emission = carbon_df[
+        carbon_df[["total_carbon_emission"]]
+        .applymap(lambda x: isinstance(x, (int, float)))
+        .all(1)
+    ].total_carbon_emission.sum()
+
+    message = f"Your total carbon emission is: {summed_carbon_emission}g"
+
+    carbon_df.fillna("No Value found", inplace=True)
+
+    return render_template(
+        "output.html", tables=[carbon_df.to_html(classes="footprint")], message=message
+    )
 
 
 if __name__ == "__main__":
