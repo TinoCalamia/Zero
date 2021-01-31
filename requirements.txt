@@ -11,9 +11,6 @@ pandas==1.1.5
 Pillow==8.0.1
 PyOpenSSL==20.0.1
 pyyaml==5.3.1
-redis==3.5.3
-redis-server==6.0.9
-rq==1.7.0
 six==1.15.0
 tensorflow==2.4.0
 tensorflow_hub==0.10.0

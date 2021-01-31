@@ -8,7 +8,6 @@ import pickle
 import numpy as np
 import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, url_for
-from rq import Queue
 from werkzeug.utils import secure_filename
 
 from src.core.data_utils import map_carbon_footprint
@@ -16,7 +15,6 @@ from src.main_script import execute_object_detection_script
 from worker import conn
 
 app = Flask(__name__)
-q = Queue(connection=conn)
 
 app.secret_key = "secret key"
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
