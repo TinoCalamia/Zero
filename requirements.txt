@@ -12,7 +12,7 @@ Pillow==8.0.1
 PyOpenSSL==20.0.1
 pyyaml==5.3.1
 six==1.15.0
-tensorflow==2.4.0
+tensorflow-cpu==2.4.1
 tensorflow_hub==0.10.0
 Werkzeug==1.0.1
 wheel==0.36.2
