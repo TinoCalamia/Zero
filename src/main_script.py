@@ -17,15 +17,17 @@ from src.utils.setup import object_detection_setup_config as setup
 
 def load_model():
     # Load model
-    if len(os.listdir(os.path.join("src", setup.model_dir, setup.model_name))) == 0:
-        print("Directory is empty. Load model from Tensorflow Hub")
-        detector = hub.load(setup.module_handle).signatures["default"]
-
-    else:
+    if os.path.exists(
+        os.path.join("src", setup.model_dir, setup.model_name, "saved_model.pb")
+    ):
         print("Directory is not empty. Use local model.")
         detector = tf.saved_model.load(
             os.path.join("src", setup.model_dir, setup.model_name)
         ).signatures["default"]
+
+    else:
+        print("Directory is empty. Load model from Tensorflow Hub")
+        detector = hub.load(setup.module_handle).signatures["default"]
 
     return detector
 
