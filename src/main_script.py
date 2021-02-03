@@ -10,11 +10,13 @@ from src.core.data_utils import (
     get_unique_objects,
     map_carbon_footprint,
     run_detector,
+    time_it,
 )
 from src.core.image_utils import resize_image
 from src.utils.setup import object_detection_setup_config as setup
 
 
+@time_it
 def load_model():
     # Load model
     if os.path.exists(

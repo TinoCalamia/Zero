@@ -1,24 +1,41 @@
 <!doctype html>
-<title>Python Flask Multiple Files Upload Example</title>
-<h2>Select file to upload</h2>
-<p>
-	{% with messages = get_flashed_messages() %}
-	  {% if messages %}
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<head>
+	<script type=text/javascript src="{{url_for('static', filename='jquery-3.5.1.min.js')}}"></script>
+	<script type="text/javascript">
+		// <![CDATA[
+		function loading() {
+			$("#loading").show();
+			$("#content").hide();
+		}
+		// ]]>
+	</script>
+	<title>Python Flask Multiple Files Upload Example</title>
+</head>
+<div id="loading"></div>
+<div id="content">
+
+	<h2>Select file to upload</h2>
+	<p>
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
 		<ul class=flashes>
-		{% for message in messages %}
-		  <li>{{ message }}</li>
-		{% endfor %}
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
 		</ul>
-	  {% endif %}
-	{% endwith %}
-</p>
-<form method="post" action="/" enctype="multipart/form-data">
-    <dl>
-		<p>
-			<input type="file" name="file" autocomplete="off" required>
-		</p>
-    </dl>
-    <p>
-		<input type="submit" value="Submit">
+		{% endif %}
+		{% endwith %}
 	</p>
+	<form method="post" action="/" enctype="multipart/form-data">
+		<dl>
+			<p>
+				<input type="file" name="file" autocomplete="off" required>
+			</p>
+		</dl>
+		<p>
+			<input type="submit" value="Submit" onclick="loading();" id="content">
+		</p>
+</div>
 </form>

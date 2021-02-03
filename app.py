@@ -4,11 +4,13 @@
 import logging
 import os
 import pickle
+import time
 
 import numpy as np
 import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, url_for
 from rq import Queue
+from rq.job import Job
 from werkzeug.utils import secure_filename
 
 from src.core.data_utils import map_carbon_footprint
@@ -69,6 +71,7 @@ def upload_file():
             file.seek(0)
 
             # Execute object detection and carbon mapping
+            # job = q.enqueue(execute_object_detection_script, file)
             execute_object_detection_script(file)
 
             return redirect(url_for("get_user_input"))
@@ -78,8 +81,22 @@ def upload_file():
             return redirect(request.url)
 
 
+@app.route("/calculation", methods=["GET", "POST"])
+def calculation():
+    # print(q.job_ids)
+    # job_key = q.job_ids[0]
+    # job = Job.fetch(job_key, connection=conn)
+    # while job.get_status() != "finished":
+    #     print(f"not finished yet, {job.get_status()}")
+    #     # return render_template("calculation.html")
+    #     time.sleep(10)
+
+    return redirect(url_for("get_user_input"))
+
+
 @app.route("/input", methods=["GET", "POST"])
 def get_user_input():
+
     if request.method == "POST":
         return redirect(url_for("script_output"))
 
@@ -116,11 +133,14 @@ def script_output():
     os.remove("src/temp_df.pickle")
 
     # Calculate overall carbon emission
-    summed_carbon_emission = carbon_df[
-        carbon_df[["total_carbon_emission"]]
-        .applymap(lambda x: isinstance(x, (int, float)))
-        .all(1)
-    ].total_carbon_emission.sum()
+    summed_carbon_emission = round(
+        carbon_df[
+            carbon_df[["total_carbon_emission"]]
+            .applymap(lambda x: isinstance(x, (int, float)))
+            .all(1)
+        ].total_carbon_emission.sum(),
+        2,
+    )
 
     message = f"Your total carbon emission is: {summed_carbon_emission}g"
 
