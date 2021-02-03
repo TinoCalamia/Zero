@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+<head>
+    <title>Flask Template Example</title>
+</head>
+
+<body>
+    <div>
+        <form method="post" action="{{url_for('script_output')}}" enctype="multipart/form-data">
+            <p>{{ message }}</p>
+            <ul>
+                {% for contact in contacts %}
+                <div class="block">
+                    <label>{{ contact }}</label>
+                    <input type="number" name="Amount" autocomplete="off" placeholder="Count or kg" required />
+                    <select id="Count" name="Count">
+                        <option value="Piece">Piece</option>
+                        <option value="Kg">Kg</option>
+                    </select>
+                </div>
+                {% endfor %}
+            </ul>
+            <p>
+                <input type="submit" value="Submit">
+            </p>
+        </form>
+    </div>
+</body>
+
+</html>

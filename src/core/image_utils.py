@@ -1,6 +1,8 @@
 """Utility functions for displaying images."""
 
 import tempfile
+import ssl
+import certifi
 
 # For downloading the image.
 import matplotlib.pyplot as plt
@@ -25,7 +27,7 @@ def load_img(path):
     return img
 
 
-def download_and_resize_image(url, new_width=256, new_height=256, display=False):
+def resize_image(image_file, new_width=256, new_height=256, display=False):
     """
     Download image from web and resize to chosen specs.
 
@@ -41,26 +43,22 @@ def download_and_resize_image(url, new_width=256, new_height=256, display=False)
     Resized picture.
 
     """
-
-    suffix = str("." + url[-3:])
-    _, filename = tempfile.mkstemp(suffix=suffix)
-    response = urlopen(url)
-    image_data = response.read()
+    image_data = image_file.stream.read()
     image_data = BytesIO(image_data)
     pil_image = Image.open(image_data)
     pil_image = ImageOps.fit(pil_image, (new_width, new_height), Image.ANTIALIAS)
     pil_image_rgb = pil_image.convert("RGB")
-    if url[-3:] == "png":
-        format = "PNG"
+    if image_file.filename[-3:] == "png":
+        format_option = "PNG"
     else:
-        format = "JPEG"
-    pil_image_rgb.save(filename, format=format, quality=90)
-    print("Image downloaded to %s." % filename)
+        format_option = "JPEG"
+    pil_image_rgb.save(image_file.filename, format=format_option, quality=90)
+    print("Using image %s." % image_file.filename)
 
     if display:
         display_image(pil_image)
 
-    return filename
+    return image_file.filename
 
 
 def draw_bounding_box_on_image(

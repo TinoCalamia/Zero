@@ -1,25 +1,21 @@
 """Helper functions for manipulating text."""
-import nltk
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
+import ssl
 
-nltk.download("punkt")
-nltk.download("wordnet")
+import inflect
 
-
-def stem(a):
-    """Remove 's' from end if a word."""
-    if a.endswith("s"):
-        return a[: -len("s")]
-    return a
+# Disable ssl
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 
 
 def singularize_words(data):
     """Make singular of plural nouns."""
-    wnl = WordNetLemmatizer()
-    tokens = [word_tokenize(x)[0] for x in data]
-    lemmatized_words = [wnl.lemmatize(token) for token in tokens]
+    p = inflect.engine()
 
-    singular_words = [stem(x) for x in lemmatized_words]
+    singular_words = [p.singular_noun(word) for word in data]
 
     return singular_words
