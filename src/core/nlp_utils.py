@@ -2,9 +2,6 @@
 import ssl
 
 import inflect
-import nltk
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 
 # Disable ssl
 try:
