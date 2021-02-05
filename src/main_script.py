@@ -34,13 +34,14 @@ def load_model():
     return detector
 
 
-def execute_object_detection_script(file):
+detector = load_model()
+
+
+def execute_object_detection_script(file, detector=detector):
     """Execute all steps."""
 
     # image_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Fruits_veggies.png/1200px-Fruits_veggies.png"
     image_path = resize_image(file, 1280, 856, False)
-
-    detector = load_model()
 
     print("Start execution.")
     # Make detection

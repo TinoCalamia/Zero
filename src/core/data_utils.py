@@ -99,7 +99,7 @@ def get_results_with_score(result, object_column="object", target_column="score"
 
 @time_it
 def get_unique_objects(
-    dataframe, object_column="object", target_column="score", threshold=0.5
+    dataframe, object_column="object", target_column="score", threshold=0.25
 ):
     """Get list with unique objects above threshold."""
     return (

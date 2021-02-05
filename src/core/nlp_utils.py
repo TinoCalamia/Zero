@@ -2,9 +2,6 @@
 import ssl
 
 import inflect
-import nltk
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 
 # Disable ssl
 try:
@@ -19,6 +16,10 @@ def singularize_words(data):
     """Make singular of plural nouns."""
     p = inflect.engine()
 
-    singular_words = [p.singular_noun(word) for word in data]
+    singular_words = [
+        p.singular_noun(word) if p.singular_noun(word) is not False else word
+        for word in data
+    ]
+    capitalized_singular_words = [word.capitalize() for word in singular_words]
 
-    return singular_words
+    return capitalized_singular_words

@@ -13,7 +13,7 @@ data_dir: data
 ghg_data_file_name: ghg_data.csv
 food_weight_file_name: food_weight_data.csv
 model_dir: saved_models
-model_name: inception_resnet_v2_1
+model_name: openimages_v4_ssd_mobilenet_v2_1
 # module_handle: https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1
 module_handle: https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1
 environment_variables:
