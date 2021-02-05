@@ -12,7 +12,7 @@
             <p>{{ message }}</p>
             <ul>
                 {% for contact in contacts %}
-                <div class="block">
+                <div class="block" id="foodlist">
                     <label>{{ contact }}</label>
                     <input type="number" name="Amount" autocomplete="off" placeholder="Count or kg" required />
                     <select id="Count" name="Count">
@@ -22,6 +22,26 @@
                 </div>
                 {% endfor %}
             </ul>
+            <input type="button" id="more_fields" value="Add food" />
+
+            <script>
+                var addFieldButton = document.getElementById("more_fields");
+                var foodlist = document.getElementById('foodlist')
+                var fc_number = 1;
+
+                function add_fields() {
+                    fc_number++;
+                    var fields = '<div class="block">\n\
+                    <input class="input setting-input" name="Food" placeholder="Additional food" type="text" required />\n\
+                    <input class="input setting-input" name="Amount" placeholder="Count or kg" type="text" required/>\n\
+                    <select id="Count" name="Count"><option value="Piece">Piece</option><option value="Kg">Kg</option></select>\n\
+                    </div>';
+                    foodlist.insertAdjacentHTML("beforeend", fields);
+                }
+
+                addFieldButton.addEventListener("click", add_fields);
+            </script>
+            <br />
             <p>
                 <input type="submit" value="Submit">
             </p>

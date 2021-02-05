@@ -120,13 +120,19 @@ def script_output():
             amount = pd.Series(req.getlist(key))
         if key == "Count":
             count = pd.Series(req.getlist(key))
+        if key == "Food":
+            food = req.getlist(key)
 
     with open("src/temp_df.pickle", "rb") as file:
-        output = pickle.load(file)
+        temp_output = pickle.load(file)
+
+    extended_object_list = temp_output["detected_object"].tolist() + food
+
+    output = pd.DataFrame()
+    output["detected_object"] = pd.Series(extended_object_list)
 
     output["amount"] = amount
     output["measurement"] = count
-
     # Create carbon df
     carbon_df = map_carbon_footprint(output)
 
@@ -147,7 +153,19 @@ def script_output():
     carbon_df.fillna("No Value found", inplace=True)
 
     return render_template(
-        "output.html", tables=[carbon_df.to_html(classes="footprint")], message=message
+        "output.html",
+        tables=[
+            carbon_df[
+                [
+                    "detected_object",
+                    "amount",
+                    "measurement",
+                    "kg_carbon_per_unit",
+                    "total_carbon_emission",
+                ]
+            ].to_html(classes="footprint")
+        ],
+        message=message,
     )
 
 

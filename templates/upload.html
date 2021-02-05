@@ -4,16 +4,13 @@
 <head>
 	<script type=text/javascript src="{{url_for('static', filename='jquery-3.5.1.min.js')}}"></script>
 	<script type="text/javascript">
-		// <![CDATA[
 		function loading() {
-			$("#loading").show();
 			$("#content").hide();
+			$("#loading").show();
 		}
-		// ]]>
 	</script>
 	<title>Python Flask Multiple Files Upload Example</title>
 </head>
-<div id="loading"></div>
 <div id="content">
 
 	<h2>Select file to upload</h2>
@@ -38,4 +35,5 @@
 			<input type="submit" value="Submit" onclick="loading();" id="content">
 		</p>
 </div>
+<div id="loading"></div>
 </form>
