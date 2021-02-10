@@ -126,7 +126,11 @@ def script_output():
     with open("src/temp_df.pickle", "rb") as file:
         temp_output = pickle.load(file)
 
-    extended_object_list = temp_output["detected_object"].tolist() + food
+    try:
+        extended_object_list = temp_output["detected_object"].tolist() + food
+    except Exception as e:
+        print(e, "But flow continues")
+        extended_object_list = temp_output["detected_object"].tolist()
 
     output = pd.DataFrame()
     output["detected_object"] = pd.Series(extended_object_list)
