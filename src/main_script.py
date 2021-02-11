@@ -32,7 +32,7 @@ detector = load_model()
 def execute_object_detection_script(file, detector=detector):
     """Execute all steps."""
 
-    image_path = resize_image(file, 1280, 856, False)
+    image_path = resize_image(file, False)
 
     print("Start execution.")
     # Make detection
