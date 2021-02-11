@@ -1,7 +1,8 @@
 """Utility functions for displaying images."""
 
-import tempfile
 import ssl
+import tempfile
+
 import certifi
 
 # For downloading the image.
@@ -11,6 +12,8 @@ import tensorflow as tf
 from PIL import Image, ImageColor, ImageDraw, ImageFont, ImageOps
 from six import BytesIO
 from six.moves.urllib.request import urlopen
+
+from src.utils.setup import object_detection_setup_config as setup
 
 
 def display_image(image):
@@ -27,7 +30,7 @@ def load_img(path):
     return img
 
 
-def resize_image(image_file, new_width=256, new_height=256, display=False):
+def resize_image(image_file, display=False):
     """
     Download image from web and resize to chosen specs.
 
@@ -46,7 +49,9 @@ def resize_image(image_file, new_width=256, new_height=256, display=False):
     image_data = image_file.stream.read()
     image_data = BytesIO(image_data)
     pil_image = Image.open(image_data)
-    pil_image = ImageOps.fit(pil_image, (new_width, new_height), Image.ANTIALIAS)
+    pil_image = ImageOps.fit(
+        pil_image, (setup.image_width, setup.image_height), Image.ANTIALIAS
+    )
     pil_image_rgb = pil_image.convert("RGB")
     if image_file.filename[-3:] == "png":
         format_option = "PNG"

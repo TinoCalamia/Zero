@@ -1,5 +1,6 @@
 """Utility functions for data processing."""
 import os
+import pickle
 import time
 
 import gspread
@@ -47,12 +48,22 @@ def run_detector(detector, image_path, show_image=False):
     img = load_img(image_path)
     converted_img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
     start_time = time.time()
-    result = detector(converted_img)
+    print(converted_img)
+    result = detector.predict_proba(converted_img)
     end_time = time.time()
 
-    result = {key: value.numpy() for key, value in result.items()}
+    output_result = pd.DataFrame()
+    detected_class = []
+    probabilities = []
+    for i in result[0][:100]:
+        index = result[0].tolist().index(i)
+        print("True label: " + get_class_string_from_index(index) + "PROBA:" + str(i))
+        detected_class.extend([get_class_string_from_index(index)])
+        probabilities.extend([i])
 
-    print("Found %d objects." % len(result["detection_scores"]))
+    output_result["detected_objects"] = pd.Series(detected_class)
+    output_result["scores"] = pd.Series(probabilities)
+
     print("Inference time: ", end_time - start_time)
 
     if show_image:
@@ -65,7 +76,7 @@ def run_detector(detector, image_path, show_image=False):
 
         display_image(image_with_boxes)
 
-    return result
+    return output_result
 
 
 @time_it
@@ -87,10 +98,8 @@ def get_results_with_score(result, object_column="object", target_column="score"
     """
 
     result_df = pd.DataFrame()
-    entities_decoded = np.array(
-        [x.decode("utf-8") for x in result["detection_class_entities"]]
-    )
-    rounded_scores = np.array([round(x, 3) for x in result["detection_scores"]])
+    entities_decoded = np.array([x for x in result["detected_objects"]])
+    rounded_scores = np.array([round(x, 3) for x in result["scores"]])
     result_df[object_column] = entities_decoded
     result_df[target_column] = rounded_scores
 
@@ -187,3 +196,12 @@ def get_df_from_spreadsheet(spreadsheet_name):
     df = pd.DataFrame(data, columns=headers)
 
     return df
+
+
+def get_class_string_from_index(index):
+    with open("src/data/target_classes.pickle", "rb") as file:
+        target_classes = pickle.load(file)
+
+    for class_string, class_index in target_classes:
+        if class_index == index:
+            return class_string
