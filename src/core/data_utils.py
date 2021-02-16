@@ -57,7 +57,6 @@ def run_detector(detector, image_path, show_image=False):
     probabilities = []
     for i in result[0][:100]:
         index = result[0].tolist().index(i)
-        print("True label: " + get_class_string_from_index(index) + "PROBA:" + str(i))
         detected_class.extend([get_class_string_from_index(index)])
         probabilities.extend([i])
 
@@ -102,6 +101,8 @@ def get_results_with_score(result, object_column="object", target_column="score"
     rounded_scores = np.array([round(x, 3) for x in result["scores"]])
     result_df[object_column] = entities_decoded
     result_df[target_column] = rounded_scores
+
+    print(result_df.sort_values(by=target_column, ascending=False).head(10))
 
     return result_df.sort_values(by=target_column, ascending=False)
 
