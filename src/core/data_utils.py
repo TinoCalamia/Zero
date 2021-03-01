@@ -1,12 +1,13 @@
 """Utility functions for data processing."""
 import os
 import pickle
+import subprocess
 import time
+import uuid
 
 import gspread
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from oauth2client.service_account import ServiceAccountCredentials
 
 from src.core.image_utils import display_image, draw_boxes, load_img
@@ -29,8 +30,14 @@ def time_it(f):
     return timed
 
 
+def write_image_file(name, path):
+    f = open(name, "w+")
+    f.write(path)
+    f.close()
+
+
 @time_it
-def run_detector(detector, image_path, show_image=False):
+def run_detector(image_path, show_image=False, thresh=0.0001):
     """
     Run detector and return detection summary.
 
@@ -45,35 +52,47 @@ def run_detector(detector, image_path, show_image=False):
     result (dict): Dictionary including detection results
 
     """
-    img = load_img(image_path)
-    converted_img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
     start_time = time.time()
-    print(converted_img)
-    result = detector.predict_proba(converted_img)
+    unique_id = uuid.uuid4()
+    output_name = f"result_{unique_id}.json"
+    write_image_file(f"src/darknet/data/result_{unique_id}.txt", image_path)
+
+    predict_command = [
+        "./darknet detector test",
+        "obj.data",
+        "cfg/yolov4-tiny-custom.cfg",
+        "Fruits_Best.weights",
+        image_path,
+        "-ext_output",
+        "-dont_show",
+        "-out",
+        output_name,
+        f"< data/result_{unique_id}.txt",
+        "-thresh",
+        str(thresh),
+    ]
+
+    subprocess.run(" ".join(predict_command), cwd="src/darknet/", shell=True)
+
     end_time = time.time()
 
     output_result = pd.DataFrame()
     detected_class = []
     probabilities = []
-    for i in result[0][:100]:
-        index = result[0].tolist().index(i)
-        detected_class.extend([get_class_string_from_index(index)])
-        probabilities.extend([i])
+    import json
+
+    with open(os.path.join("src/darknet", output_name)) as json_file:
+        data = json.load(json_file)
+
+    for detection in data[0]["objects"]:
+        detected_class.extend([detection["name"]])
+        probabilities.extend([detection["confidence"]])
 
     output_result["detected_objects"] = pd.Series(detected_class)
     output_result["scores"] = pd.Series(probabilities)
 
     print("Inference time: ", end_time - start_time)
-
-    if show_image:
-        image_with_boxes = draw_boxes(
-            img.numpy(),
-            result["detection_boxes"],
-            result["detection_class_entities"],
-            result["detection_scores"],
-        )
-
-        display_image(image_with_boxes)
+    print("OUTPUT:", output_result)
 
     return output_result
 

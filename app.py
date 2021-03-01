@@ -4,6 +4,7 @@
 import logging
 import os
 import pickle
+import subprocess
 import time
 
 import numpy as np
@@ -34,6 +35,16 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
+
+# make darknet
+# subprocess.run('sed -i "" -e "s/OPENCV=0/" ./src/darknet/Makefile', shell=True)
+# subprocess.run('sed -i "" -e "s/GPU=0/" ./src/darknet/Makefile', shell=True)
+# subprocess.run('sed -i "" -e "s/CUDNN=0/" ./src/darknet/Makefile', shell=True)
+# subprocess.run('sed -i "" -e "s/CUDNN_HALF=0/" ./src/darknet/Makefile', shell=True)
+subprocess.call(["cmake", "-DENABLE_CUDA=OFF"], cwd="./darknet/")
+subprocess.run("make", cwd="darknet/")
+subprocess.run("./darknet", cwd="darknet/")
+
 
 if __name__ == "__main__":
     gunicorn_logger = logging.getLogger("gunicorn.error")
