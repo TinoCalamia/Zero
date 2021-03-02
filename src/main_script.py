@@ -12,10 +12,12 @@ from src.core.data_utils import (
 from src.core.image_utils import resize_image
 from src.utils.setup import object_detection_setup_config as setup
 
+
 def execute_object_detection_script(file, detector=detector):
     """Execute all steps."""
 
     print("Start execution.")
+    image_path = resize_image(file)
     # Make detection
     detected_objects_dict = run_detector(image_path=image_path, show_image=False)
     # Make df with objects and scores
