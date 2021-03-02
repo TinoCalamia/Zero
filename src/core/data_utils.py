@@ -56,8 +56,8 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     unique_id = uuid.uuid4()
     output_name = f"result_{unique_id}.json"
     write_image_file(f"darknet/data/result_{unique_id}.txt", image_path)
+    # Copy image to darknet folder
     subprocess.run(f"cp {image_path} darknet/", shell=True)
-    print("IMAGE_PATH", image_path)
 
     predict_command = [
         "./darknet detector test",
@@ -94,7 +94,10 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     output_result["scores"] = pd.Series(probabilities)
 
     print("Inference time: ", end_time - start_time)
-    print("OUTPUT:", output_result)
+
+    # remove unneeded files
+    os.remove(os.path.join("darknet/data", output_name))
+    os.remove(os.path.join("darknet/data", f"result_{unique_id}.txt"))
 
     return output_result
 
