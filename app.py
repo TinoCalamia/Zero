@@ -92,19 +92,6 @@ def upload_file():
             return redirect(request.url)
 
 
-@app.route("/calculation", methods=["GET", "POST"])
-def calculation():
-    # print(q.job_ids)
-    # job_key = q.job_ids[0]
-    # job = Job.fetch(job_key, connection=conn)
-    # while job.get_status() != "finished":
-    #     print(f"not finished yet, {job.get_status()}")
-    #     # return render_template("calculation.html")
-    #     time.sleep(10)
-
-    return redirect(url_for("get_user_input"))
-
-
 @app.route("/input", methods=["GET", "POST"])
 def get_user_input():
 
@@ -140,7 +127,7 @@ def script_output():
     try:
         extended_object_list = temp_output["detected_object"].tolist() + food
     except Exception as e:
-        print(e, "But flow continues")
+        print(f"Exception {e} was caused")
         extended_object_list = temp_output["detected_object"].tolist()
 
     output = pd.DataFrame()
