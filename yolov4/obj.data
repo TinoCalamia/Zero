@@ -1,0 +1,5 @@
+classes = 16
+train = data/train.txt
+valid = data/test.txt
+names = /content/drive/MyDrive/zero/yolov4/obj.names
+backup = /content/drive/MyDrive/zero/yolov4/backup
