@@ -12,11 +12,8 @@ from src.core.data_utils import (
 from src.core.image_utils import resize_image
 from src.utils.setup import object_detection_setup_config as setup
 
-
-def execute_object_detection_script(file):
+def execute_object_detection_script(file, detector=detector):
     """Execute all steps."""
-
-    image_path = resize_image(file, False)
 
     print("Start execution.")
     # Make detection
