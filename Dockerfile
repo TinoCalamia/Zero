@@ -13,7 +13,8 @@ RUN apt-get update && \
     apt-get install -yqq --no-install-recommends git && \
     pip install --upgrade -q black && \
     pip install -U jupyterlab==1.2.0 && \
-    pip install seaborn nb_black pyarrow
+    pip install seaborn nb_black pyarrow \
+    apt install libopencv-dev
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -&& \
     apt-get install -yqq --no-install-recommends nodejs

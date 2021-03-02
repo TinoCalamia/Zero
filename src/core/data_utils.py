@@ -1,11 +1,13 @@
 """Utility functions for data processing."""
 import os
+import pickle
+import subprocess
 import time
+import uuid
 
 import gspread
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from oauth2client.service_account import ServiceAccountCredentials
 
 from src.core.image_utils import display_image, draw_boxes, load_img
@@ -28,8 +30,14 @@ def time_it(f):
     return timed
 
 
+def write_image_file(name, path):
+    f = open(name, "w+")
+    f.write(path)
+    f.close()
+
+
 @time_it
-def run_detector(detector, image_path, show_image=False):
+def run_detector(image_path, show_image=False, thresh=0.0001):
     """
     Run detector and return detection summary.
 
@@ -44,28 +52,49 @@ def run_detector(detector, image_path, show_image=False):
     result (dict): Dictionary including detection results
 
     """
-    img = load_img(image_path)
-    converted_img = tf.image.convert_image_dtype(img, tf.float32)[tf.newaxis, ...]
     start_time = time.time()
-    result = detector(converted_img)
+    unique_id = uuid.uuid4()
+    output_name = f"result_{unique_id}.json"
+    write_image_file(f"src/darknet/data/result_{unique_id}.txt", image_path)
+
+    predict_command = [
+        "./darknet detector test",
+        "obj.data",
+        "cfg/yolov4-tiny-custom.cfg",
+        "Fruits_Best.weights",
+        image_path,
+        "-ext_output",
+        "-dont_show",
+        "-out",
+        output_name,
+        f"< data/result_{unique_id}.txt",
+        "-thresh",
+        str(thresh),
+    ]
+
+    subprocess.run(" ".join(predict_command), cwd="src/darknet/", shell=True)
+
     end_time = time.time()
 
-    result = {key: value.numpy() for key, value in result.items()}
+    output_result = pd.DataFrame()
+    detected_class = []
+    probabilities = []
+    import json
 
-    print("Found %d objects." % len(result["detection_scores"]))
+    with open(os.path.join("src/darknet", output_name)) as json_file:
+        data = json.load(json_file)
+
+    for detection in data[0]["objects"]:
+        detected_class.extend([detection["name"]])
+        probabilities.extend([detection["confidence"]])
+
+    output_result["detected_objects"] = pd.Series(detected_class)
+    output_result["scores"] = pd.Series(probabilities)
+
     print("Inference time: ", end_time - start_time)
+    print("OUTPUT:", output_result)
 
-    if show_image:
-        image_with_boxes = draw_boxes(
-            img.numpy(),
-            result["detection_boxes"],
-            result["detection_class_entities"],
-            result["detection_scores"],
-        )
-
-        display_image(image_with_boxes)
-
-    return result
+    return output_result
 
 
 @time_it
@@ -87,12 +116,12 @@ def get_results_with_score(result, object_column="object", target_column="score"
     """
 
     result_df = pd.DataFrame()
-    entities_decoded = np.array(
-        [x.decode("utf-8") for x in result["detection_class_entities"]]
-    )
-    rounded_scores = np.array([round(x, 3) for x in result["detection_scores"]])
+    entities_decoded = np.array([x for x in result["detected_objects"]])
+    rounded_scores = np.array([round(x, 3) for x in result["scores"]])
     result_df[object_column] = entities_decoded
     result_df[target_column] = rounded_scores
+
+    print(result_df.sort_values(by=target_column, ascending=False).head(10))
 
     return result_df.sort_values(by=target_column, ascending=False)
 
@@ -187,3 +216,12 @@ def get_df_from_spreadsheet(spreadsheet_name):
     df = pd.DataFrame(data, columns=headers)
 
     return df
+
+
+def get_class_string_from_index(index):
+    with open("src/data/target_classes.pickle", "rb") as file:
+        target_classes = pickle.load(file)
+
+    for class_string, class_index in target_classes:
+        if class_index == index:
+            return class_string

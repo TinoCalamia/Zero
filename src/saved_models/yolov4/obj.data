@@ -1,0 +1,5 @@
+classes = 16
+train = data/train.txt
+valid = data/test.txt
+names = /Users/agostinocalamia/Documents/Zero/src/saved_models/yolov4/obj.names
+backup = /Users/agostinocalamia/Documents/Zero/src/saved_models/yolov4/backup

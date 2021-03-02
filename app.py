@@ -4,6 +4,7 @@
 import logging
 import os
 import pickle
+import subprocess
 import time
 
 import numpy as np
@@ -34,6 +35,16 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
+
+# make darknet
+# subprocess.run('sed -i "" -e "s/OPENCV=0/" ./src/darknet/Makefile', shell=True)
+# subprocess.run('sed -i "" -e "s/GPU=0/" ./src/darknet/Makefile', shell=True)
+# subprocess.run('sed -i "" -e "s/CUDNN=0/" ./src/darknet/Makefile', shell=True)
+# subprocess.run('sed -i "" -e "s/CUDNN_HALF=0/" ./src/darknet/Makefile', shell=True)
+subprocess.call(["cmake", "-DENABLE_CUDA=OFF"], cwd="./darknet/")
+subprocess.run("make", cwd="darknet/")
+subprocess.run("./darknet", cwd="darknet/")
+
 
 if __name__ == "__main__":
     gunicorn_logger = logging.getLogger("gunicorn.error")
@@ -81,19 +92,6 @@ def upload_file():
             return redirect(request.url)
 
 
-@app.route("/calculation", methods=["GET", "POST"])
-def calculation():
-    # print(q.job_ids)
-    # job_key = q.job_ids[0]
-    # job = Job.fetch(job_key, connection=conn)
-    # while job.get_status() != "finished":
-    #     print(f"not finished yet, {job.get_status()}")
-    #     # return render_template("calculation.html")
-    #     time.sleep(10)
-
-    return redirect(url_for("get_user_input"))
-
-
 @app.route("/input", methods=["GET", "POST"])
 def get_user_input():
 
@@ -126,7 +124,11 @@ def script_output():
     with open("src/temp_df.pickle", "rb") as file:
         temp_output = pickle.load(file)
 
-    extended_object_list = temp_output["detected_object"].tolist() + food
+    try:
+        extended_object_list = temp_output["detected_object"].tolist() + food
+    except Exception as e:
+        print(f"Exception {e} was caused")
+        extended_object_list = temp_output["detected_object"].tolist()
 
     output = pd.DataFrame()
     output["detected_object"] = pd.Series(extended_object_list)

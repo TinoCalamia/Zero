@@ -1,0 +1,79 @@
+item {
+  id: 1
+  name: 'Apple'
+}
+
+item {
+  id: 2
+  name: 'Pear'
+}
+
+item {
+  id: 3
+  name: 'Plum'
+}
+
+item {
+  id: 4
+  name: 'Pomegranate'
+}
+
+item {
+  id: 5
+  name: 'Peach'
+}
+
+item {
+  id: 6
+  name: 'Apricot'
+}
+
+item {
+  id: 7
+  name: 'Grape'
+}
+
+item {
+  id: 8
+  name: 'Banana'
+}
+
+item {
+  id: 9
+  name: 'Cactus Fruit'
+}
+
+item {
+  id: 10
+  name: 'Cherry'
+}
+
+item {
+  id: 11
+  name: 'Strawberry'
+}
+
+item {
+  id: 12
+  name: 'Chestnut'
+}
+
+item {
+  id: 13
+  name: 'Kiwi'
+}
+
+item {
+  id: 14
+  name: 'Coconut'
+}
+
+item {
+  id: 15
+  name: 'Orange'
+}
+
+item {
+  id: 16
+  name: 'Date'
+}

@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "zero-carbon-emission",
+  "private_key_id": "ab5ea26380abc3234fdc1ea6c865be475e045b1b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDYkmhTXtJVR9mQ\nJeKLJmMDLBIe5WNQNXCf+Kx28l6P9gJJZ+/KJoFWWI/60gH4V5uTDYYs8tFbuiRX\nQAI+YxtB1fMDDbC2y5vyXuiWGnPxS9tSgk67b2Aa97cANFT042HZkelnX8ZruSu+\nRhvt77IhN9UOYYod372Xw0jtm2TdyIzHvaPzLHezT5LBLw3/fUWNczRApaTOVk9r\nTSt8XCn8sydV8dbf7D+CHbIlSDDiE5z3oumNB0dbQg3pxPqihzRhE0CvvkRExjKi\nxAcWKATtJEmuZmclZRXUUIBXx7C3jVwTYC3wFF80PoFWzjytg7ZkOeaUFEsK8Sij\n3KE6GEj9AgMBAAECggEAAog/tJT0vr1NDIklwMrfKkbw6qHlp6cK+XaHt+z8/xAH\nedDNy5AhI1h8TSbcdV6CMqsG3m461W/JPKiXxTv4pAF6rjMSDprghPg9c2YSVmum\neQH/0OPIp2K7+zQhcJywOiW9xdgncptUtzc2+SnYlthJOIE25u29u3vsjolVGaS8\niXGk+gO8qUqIcKnybgdfMTPXbbCmt5r8PQ6/8/pYWYArTUyoePxxI3tqY/UdoxOr\nz8YPiMimpG4AdxH9pxwsI6otngB7m6+OB+x8PXkWZWGou93Fg+x8J8qGQNiuXjtg\nktleUAK0bURRWya9DxAbRS2ISd38KhyXGls2Uk42DwKBgQDzG5z13D8JaARanUOE\n41b0RGvGrBxKmHWvEkGTmdJHuCqxrojplavAFboVA2BuxpAPT78zkEUT/I5Xjfah\naWceiOhFXWdo/lgDO9I9urhipu7ndnvG9KAyXqADEfAVqM2OksbT3/t/W5KbYj/A\n0bAO7SMuq3sTVLXiN2pH7fj0XwKBgQDkDowTtXiXeDy9R9pkUDPw6izpsyvXG9Na\nMdmk9809lFXbObuYfwwGEMIXIi5/GMG/np1unrCJnErFdgcWKzU8HTeG6HBXCJIZ\n0udDjXBiB4f00QRtQH1LTeReYE/zxFo7fQSJzYjjH1dMFWBdrAjr/K0kF5NcUTdm\nB+TXtF0gIwKBgQDDGJvkKvZjpBgqaB6xXIiByw77B1BFBQkckHgT7dP1PnT01u6F\nFloY8ta82lLfU3Z08zisNtFY8suAtCsC6kWZGaHdWNIOTl9vaOiWJWynrvP2yP0Y\nc2TER2/+Rrz3hNpB2sS5b/yy/lgvXq9vHFhAAkrDv1Yr80Vr37DpPK8X3QKBgEvl\nE3TTpagy2XPcX6+WiVKZfAziFarmlbWkdVvTI7hkjxX/5pBfZ271UMJGG9csM/5D\nGP1hTjrdinygRMd55aN1za7V19z++zAg4dm3TjkxbGtqy+BX39qZt3A4+SKUq7q0\nZjg98Fo1aeXmD0XdJLL0SeKC/gVw+dC4u82VNpClAoGADWf+E1olewenbwKvDgt+\ng0pCAua+wgjkT1fBELQVhag9pq6D2WOPRXS8uMLLOc7Ni94X6guZjB290Ka8YtPd\n7109yYRBocufn79VkpujBbFRDvA7dVhyEpXrcYBHbdYeLsFgmuKzfWIbhQ8USs/t\nec4EjxJOr1DzbeW0FMnbba8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "zero-840@zero-carbon-emission.iam.gserviceaccount.com",
+  "client_id": "104721325098471394216",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/zero-840%40zero-carbon-emission.iam.gserviceaccount.com"
+}

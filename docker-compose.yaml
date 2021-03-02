@@ -13,16 +13,5 @@ services:
       - "0.0.0.0:8888:8888"
     entrypoint: ["jupyter", "lab", "--ip=0.0.0.0", "--allow-root"]
 
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-
-  worker:
-      build:
-          context: ./
-          dockerfile: Dockerfile
-      command: rq worker --url redis://redis:6379
-
 networks:
   zero:

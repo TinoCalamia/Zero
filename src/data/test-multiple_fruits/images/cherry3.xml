@@ -1,0 +1,29 @@
+<annotation>
+    <folder>images</folder>
+    <filename>cherry3.jpg</filename>
+    <size>
+        <width>3024</width>
+        <height>4032</height>
+        <depth>3</depth>
+    </size>
+    <object>
+        <name>Cherry</name>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>1274</xmin>
+            <ymin>1144</ymin>
+            <xmax>1564</xmax>
+            <ymax>1479</ymax>
+        </bndbox>
+    </object>
+    <object>
+        <name>Cherry</name>
+        <difficult>0</difficult>
+        <bndbox>
+            <xmin>1563</xmin>
+            <ymin>1668</ymin>
+            <xmax>1845</xmax>
+            <ymax>1871</ymax>
+        </bndbox>
+    </object>
+</annotation>
