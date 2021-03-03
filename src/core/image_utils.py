@@ -8,7 +8,6 @@ import certifi
 # For downloading the image.
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 from PIL import Image, ImageColor, ImageDraw, ImageFont, ImageOps
 from six import BytesIO
 from six.moves.urllib.request import urlopen
@@ -22,12 +21,6 @@ def display_image(image):
     plt.grid(False)
     plt.imshow(image)
 
-
-def load_img(path):
-    """Load image from path."""
-    img = tf.io.read_file(path)
-    img = tf.image.decode_jpeg(img, channels=3)
-    return img
 
 
 def resize_image(image_file, display=False):
