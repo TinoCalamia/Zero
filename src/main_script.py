@@ -13,7 +13,7 @@ from src.core.image_utils import resize_image
 from src.utils.setup import object_detection_setup_config as setup
 
 
-def execute_object_detection_script(file, detector=detector):
+def execute_object_detection_script(file):
     """Execute all steps."""
 
     print("Start execution.")

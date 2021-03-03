@@ -55,24 +55,26 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     start_time = time.time()
     unique_id = uuid.uuid4()
     output_name = f"result_{unique_id}.json"
-    write_image_file(f"src/darknet/data/result_{unique_id}.txt", image_path)
+    write_image_file(f"darknet/data/result_{unique_id}.txt", image_path)
+    # Copy image to darknet folder
+    subprocess.run(f"cp {image_path} darknet/", shell=True)
 
     predict_command = [
         "./darknet detector test",
-        "obj.data",
+        "data/obj.data",
         "cfg/yolov4-tiny-custom.cfg",
         "Fruits_Best.weights",
         image_path,
         "-ext_output",
         "-dont_show",
         "-out",
-        output_name,
+        str("data/" + output_name),
         f"< data/result_{unique_id}.txt",
         "-thresh",
         str(thresh),
     ]
 
-    subprocess.run(" ".join(predict_command), cwd="src/darknet/", shell=True)
+    subprocess.run(" ".join(predict_command), cwd="darknet/", shell=True)
 
     end_time = time.time()
 
@@ -81,7 +83,7 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     probabilities = []
     import json
 
-    with open(os.path.join("src/darknet", output_name)) as json_file:
+    with open(os.path.join("darknet/data", output_name)) as json_file:
         data = json.load(json_file)
 
     for detection in data[0]["objects"]:
@@ -92,7 +94,10 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     output_result["scores"] = pd.Series(probabilities)
 
     print("Inference time: ", end_time - start_time)
-    print("OUTPUT:", output_result)
+
+    # remove unneeded files
+    os.remove(os.path.join("darknet/data", output_name))
+    os.remove(os.path.join("darknet/data", f"result_{unique_id}.txt"))
 
     return output_result
 
