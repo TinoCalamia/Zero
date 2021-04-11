@@ -10,16 +10,12 @@ import time
 import numpy as np
 import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, url_for
-from rq import Queue
-from rq.job import Job
 from werkzeug.utils import secure_filename
 
 from src.core.data_utils import map_carbon_footprint
 from src.main_script import execute_object_detection_script
-from worker import conn
 
 app = Flask(__name__)
-q = Queue(connection=conn)
 
 app.secret_key = "secret key"
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
@@ -43,23 +39,27 @@ subprocess.run("cp yolov4/obj.names darknet/data", shell=True)
 subprocess.run("cp yolov4/obj.data darknet/data", shell=True)
 
 # Change configs
+subprocess.run("pwd",shell=True,)
+subprocess.run("ls",shell=True,)
+
 subprocess.run(
-    "sed -i '' -e 's/batch=64/batch=1/' darknet/cfg/yolov4-tiny-custom.cfg", shell=True
+    "sed -i -e 's/batch=64/batch=1/' darknet/cfg/yolov4-tiny-custom.cfg", shell=True
 )
 subprocess.run(
-    "sed -i '' -e 's/subdivisions=16/subdivisions=1/' darknet/cfg/yolov4-tiny-custom.cfg",
+    "sed -i -e 's/subdivisions=16/subdivisions=1/' darknet/cfg/yolov4-tiny-custom.cfg",
     shell=True,
 )
 
 # make darknet
-subprocess.run('sed -i "" -e "s/OPENCV=0/OPENCV=1/" ./darknet/Makefile', shell=True)
-subprocess.run('sed -i "" -e "s/GPU=0/GPU=0/" ./darknet/Makefile', shell=True)
-subprocess.run('sed -i "" -e "s/CUDNN=0/CUDNN=0/" ./darknet/Makefile', shell=True)
+subprocess.run('sed -i -e "s/OPENCV=0/OPENCV=1/" ./darknet/Makefile', shell=True)
+subprocess.run('sed -i -e "s/GPU=0/GPU=0/" ./darknet/Makefile', shell=True)
+subprocess.run('sed -i -e "s/CUDNN=0/CUDNN=0/" ./darknet/Makefile', shell=True)
 subprocess.run(
-    'sed -i "" -e "s/CUDNN_HALF=0/CUDNN_HALF=0/" ./darknet/Makefile', shell=True
+    'sed -i -e "s/CUDNN_HALF=0/CUDNN_HALF=0/" ./darknet/Makefile', shell=True
 )
+
 subprocess.call(["cmake", "-DENABLE_CUDA=OFF"], cwd="./darknet/")
-subprocess.run("make", cwd="darknet/")
+#subprocess.run("make", cwd="./darknet/")
 subprocess.run("./darknet", cwd="darknet/")
 
 
@@ -187,7 +187,10 @@ def script_output():
         message=message,
     )
 
+def lambda_handler():
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", debug=True, port=port)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    #port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", debug=True)#, port=port

@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 
-from src.core.image_utils import display_image, draw_boxes, load_img
+from src.core.image_utils import display_image, draw_boxes
 from src.core.nlp_utils import singularize_words
 from src.utils.setup import object_detection_setup_config as setup
 
