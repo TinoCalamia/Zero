@@ -1,23 +1,23 @@
-FROM python:3.8.7-slim-buster as python
+FROM public.ecr.aws/lambda/python:3.8 as base
+FROM base AS deploy
 
 LABEL maintainer="calamia.tino@gmail.com" service=zero
 
-WORKDIR /app
-
 # Install python packages
-COPY requirements.txt /app
+COPY requirements.txt ./
 
 RUN pip install --no-cache-dir --upgrade --upgrade-strategy=eager -r requirements.txt
+RUN yum install -y wget yum tar gzip gcc-c++ libcurl-devel make
 
-RUN apt-get update && \
-    apt-get install -yqq --no-install-recommends git && \
-    pip install --upgrade -q black && \
-    pip install -U jupyterlab==1.2.0 && \
-    pip install seaborn nb_black pyarrow \
-    apt install libopencv-dev
+RUN export CC=gcc64
+RUN export CXX=g++64
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -&& \
-    apt-get install -yqq --no-install-recommends nodejs
+# CMake
+#RUN wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.18.1/cmake-3.18.1-Linux-x86_64.sh && \
+#   sh ./cmake.sh --prefix=/usr/local --skip-license
 
 # Copy .src folder file to workdir /app
-COPY . /app
+COPY . ./
+CMD ["app.lambda_handler"]
+
+
