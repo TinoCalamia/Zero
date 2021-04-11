@@ -18,6 +18,6 @@ RUN export CXX=g++64
 
 # Copy .src folder file to workdir /app
 COPY . ./
-#CMD ["app.lambda_handler"]
+CMD ["app.lambda_handler"]
 
 
