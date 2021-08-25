@@ -15,10 +15,10 @@ from werkzeug.utils import secure_filename
 from src.core.data_utils import map_carbon_footprint
 from src.main_script import execute_object_detection_script
 
-app = Flask(__name__)
+application = Flask(__name__)
 
-app.secret_key = "secret key"
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+application.secret_key = "secret key"
+application.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
 path = os.getcwd()
 # file Upload
@@ -27,7 +27,7 @@ UPLOAD_FOLDER = os.path.join(path, "uploads")
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
 
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+application.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
@@ -35,21 +35,21 @@ ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
 
 if __name__ == "__main__":
     gunicorn_logger = logging.getLogger("gunicorn.error")
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+    application.logger.handlers = gunicorn_logger.handlers
+    application.logger.setLevel(gunicorn_logger.level)
 
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route("/")
+@application.route("/")
 def upload_form():
     """Show upload form."""
     return render_template("upload.html")
 
 
-@app.route("/", methods=["POST"])
+@application.route("/", methods=["POST"])
 def upload_file():
     """Upload file."""
     if request.method == "POST":
@@ -64,7 +64,7 @@ def upload_file():
         if file and allowed_file(file.filename):
             # Save file to folder
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            file.save(os.path.join(application.config["UPLOAD_FOLDER"], filename))
             flash("File successfully uploaded")
             file.seek(0)
 
@@ -79,7 +79,7 @@ def upload_file():
             return redirect(request.url)
 
 
-@app.route("/input", methods=["GET", "POST"])
+@application.route("/input", methods=["GET", "POST"])
 def get_user_input():
 
     if request.method == "POST":
@@ -94,7 +94,7 @@ def get_user_input():
     return render_template("input.html", message=message, contacts=product_list)
 
 
-@app.route("/output", methods=["GET", "POST"])
+@application.route("/output", methods=["GET", "POST"])
 def script_output():
     """Execute main script and return dataframe in html format."""
 
@@ -157,10 +157,6 @@ def script_output():
         message=message,
     )
 
-def lambda_handler():
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", debug=True, port=port)
-
 if __name__ == "__main__":
     #port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", debug=True)#, port=port
+    application.run(host="0.0.0.0", debug=True)#, port=port
