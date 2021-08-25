@@ -1,6 +1,7 @@
 """Load Config Details."""
 import ast
 import os
+import pickle
 
 import yaml
 
@@ -16,6 +17,9 @@ class Setup:
         self.config_file = config_file
         self.config_dict = dict()
         self.yaml_config_raw = yaml.safe_load(open(self.config_file))
+        with open("src/utils/class_labels.pickle", "rb") as file:
+            self.class_labels_raw = pickle.load(file)
+        self.class_labels = [word.capitalize() for word in self.class_labels_raw]
 
     def parse_yaml_config(self):
         """Parse a yml config file and create a config_dict class attribute."""

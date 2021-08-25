@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir --upgrade --upgrade-strategy=eager -r requirement
 
 # Copy .src folder file to workdir /app
 COPY . ./
+RUN conda install opencv
 #CMD ["app.lambda_handler"]
 CMD ["python","application.py"]
 

@@ -1,5 +1,4 @@
 """Utility functions for data processing."""
-import cv2
 import json
 import os
 import pickle
@@ -11,6 +10,8 @@ import gspread
 import numpy as np
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
+import tensorflow as tf
+import tensorflow_hub as hub
 
 from src.core.image_utils import display_image, draw_boxes
 from src.core.nlp_utils import singularize_words
@@ -39,7 +40,9 @@ def write_image_file(name, path):
 
 
 @time_it
-def run_detector(image_path, show_image=False, thresh=0.0001):
+def run_detector(
+    image_path, show_image=False, thresh=0.0001, img_height=224, img_width=224
+):
     """
     Run detector and return detection summary.
 
@@ -54,45 +57,43 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     result (dict): Dictionary including detection results
 
     """
-    # define network
-    net = cv2.dnn.readNetFromDarknet(
-        "yolov4/yolov4-tiny-custom.cfg",
-        "yolov4/backup/Fruits_Best.weights",
+
+    classifier = tf.keras.models.load_model(setup.export_path)
+
+    img_generator = tf.keras.preprocessing.image.ImageDataGenerator(
+        preprocessing_function=tf.keras.applications.mobilenet_v2.preprocess_input
     )
 
-    image = cv2.imread(image_path)
-    ln = net.getLayerNames()
-    ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
-    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
+    ds = img_generator.flow_from_dataframe(
+        dataframe=pd.concat(
+            [
+                pd.Series(image_path, name="Filepath").astype(str),
+                pd.Series("dummy", name="Label").astype(str),
+            ],
+            axis=1,
+        ),
+        x_col="Filepath",
+        y_col="Label",
+        target_size=(224, 224),
+        color_mode="rgb",
+        class_mode="categorical",
+        batch_size=32,
+        shuffle=False,
+    )
 
-    net.setInput(blob)
     start_time = time.time()
-    layerOutputs = net.forward(ln)
+    preds = classifier.predict(ds)
     end_time = time.time()
 
     output_result = pd.DataFrame()
     detected_classes = []
     confidences = []
 
-    # Code example
-    # https://cloudxlab.com/blog/object-detection-yolo-and-python-pydarknet/
-    LABELS = open("yolov4/obj.names").read().strip().split("\n")
-
-    for output in layerOutputs:
-        # loop over each of the detections
-        for detection in output:
-            # extract the class ID and confidence (i.e., probability) of
-            # the current object detection
-            scores = detection[5:]
-            confidence = scores[np.argmax(scores)]
-            label = LABELS[np.argmax(scores)]
-            # filter out weak predictions by ensuring the detected
-            # probability is greater than the minimum probability
-            if confidence > 0.1:
-                # update our list confidences,
-                # and class IDs
-                confidences.extend([float(confidence)])
-                detected_classes.extend([label])
+    for confidence_level in preds[0]:
+        if confidence_level > 0.1:
+            position = list(preds[0]).index(confidence_level)
+            confidences.extend([float(confidence_level)])
+            detected_classes.extend([list(setup.class_labels)[position]])
 
     output_result["detected_objects"] = pd.Series(detected_classes)
     output_result["scores"] = pd.Series(confidences)

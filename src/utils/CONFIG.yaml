@@ -21,3 +21,4 @@ module_handle: https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1
 environment_variables:
   - env_name: ZERO_ENV
     config_name: section
+export_path: src/saved_models/mobilenet
