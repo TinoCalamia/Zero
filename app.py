@@ -6,6 +6,7 @@ import os
 import pickle
 import subprocess
 import time
+import cv2
 
 import numpy as np
 import pandas as pd
@@ -31,36 +32,6 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 ALLOWED_EXTENSIONS = set(["txt", "pdf", "png", "jpg", "jpeg", "gif"])
-
-# Copy files
-subprocess.run("cp yolov4/yolov4-tiny-custom.cfg darknet/cfg", shell=True)
-subprocess.run("cp yolov4/backup/Fruits_Best.weights darknet/", shell=True)
-subprocess.run("cp yolov4/obj.names darknet/data", shell=True)
-subprocess.run("cp yolov4/obj.data darknet/data", shell=True)
-
-# Change configs
-subprocess.run("pwd",shell=True,)
-subprocess.run("ls",shell=True,)
-
-subprocess.run(
-    "sed -i -e 's/batch=64/batch=1/' darknet/cfg/yolov4-tiny-custom.cfg", shell=True
-)
-subprocess.run(
-    "sed -i -e 's/subdivisions=16/subdivisions=1/' darknet/cfg/yolov4-tiny-custom.cfg",
-    shell=True,
-)
-
-# make darknet
-subprocess.run('sed -i -e "s/OPENCV=0/OPENCV=1/" ./darknet/Makefile', shell=True)
-subprocess.run('sed -i -e "s/GPU=0/GPU=0/" ./darknet/Makefile', shell=True)
-subprocess.run('sed -i -e "s/CUDNN=0/CUDNN=0/" ./darknet/Makefile', shell=True)
-subprocess.run(
-    'sed -i -e "s/CUDNN_HALF=0/CUDNN_HALF=0/" ./darknet/Makefile', shell=True
-)
-
-subprocess.call(["cmake", "-DENABLE_CUDA=OFF"], cwd="./darknet/")
-#subprocess.run("make", cwd="./darknet/")
-subprocess.run("./darknet", cwd="darknet/")
 
 
 if __name__ == "__main__":

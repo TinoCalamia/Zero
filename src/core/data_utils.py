@@ -1,4 +1,6 @@
 """Utility functions for data processing."""
+import cv2
+import json
 import os
 import pickle
 import subprocess
@@ -52,53 +54,50 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     result (dict): Dictionary including detection results
 
     """
+    # define network
+    net = cv2.dnn.readNetFromDarknet(
+        "yolov4/yolov4-tiny-custom.cfg",
+        "yolov4/backup/Fruits_Best.weights",
+    )
+
+    image = cv2.imread(image_path)
+    ln = net.getLayerNames()
+    ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+    blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (416, 416), swapRB=True, crop=False)
+
+    net.setInput(blob)
     start_time = time.time()
-    unique_id = uuid.uuid4()
-    output_name = f"result_{unique_id}.json"
-    write_image_file(f"darknet/data/result_{unique_id}.txt", image_path)
-    # Copy image to darknet folder
-    subprocess.run(f"cp {image_path} darknet/", shell=True)
-
-    predict_command = [
-        "./darknet detector test",
-        "data/obj.data",
-        "cfg/yolov4-tiny-custom.cfg",
-        "Fruits_Best.weights",
-        image_path,
-        "-ext_output",
-        "-dont_show",
-        "-out",
-        str("data/" + output_name),
-        f"< data/result_{unique_id}.txt",
-        "-thresh",
-        str(thresh),
-    ]
-
-    subprocess.run(" ".join(predict_command), cwd="darknet/", shell=True)
-
+    layerOutputs = net.forward(ln)
     end_time = time.time()
 
     output_result = pd.DataFrame()
-    detected_class = []
-    probabilities = []
-    import json
+    detected_classes = []
+    confidences = []
 
-    with open(os.path.join("darknet/data", output_name)) as json_file:
-        data = json.load(json_file)
+    # Code example
+    # https://cloudxlab.com/blog/object-detection-yolo-and-python-pydarknet/
+    LABELS = open("yolov4/obj.names").read().strip().split("\n")
 
-    for detection in data[0]["objects"]:
-        detected_class.extend([detection["name"]])
-        probabilities.extend([detection["confidence"]])
+    for output in layerOutputs:
+        # loop over each of the detections
+        for detection in output:
+            # extract the class ID and confidence (i.e., probability) of
+            # the current object detection
+            scores = detection[5:]
+            confidence = scores[np.argmax(scores)]
+            label = LABELS[np.argmax(scores)]
+            # filter out weak predictions by ensuring the detected
+            # probability is greater than the minimum probability
+            if confidence > 0.1:
+                # update our list confidences,
+                # and class IDs
+                confidences.extend([float(confidence)])
+                detected_classes.extend([label])
 
-    output_result["detected_objects"] = pd.Series(detected_class)
-    output_result["scores"] = pd.Series(probabilities)
+    output_result["detected_objects"] = pd.Series(detected_classes)
+    output_result["scores"] = pd.Series(confidences)
 
     print("Inference time: ", end_time - start_time)
-
-    # remove unneeded files
-    os.remove(os.path.join("darknet/data", output_name))
-    os.remove(os.path.join("darknet/data", f"result_{unique_id}.txt"))
-
     return output_result
 
 
@@ -133,7 +132,7 @@ def get_results_with_score(result, object_column="object", target_column="score"
 
 @time_it
 def get_unique_objects(
-    dataframe, object_column="object", target_column="score", threshold=0.25
+    dataframe, object_column="object", target_column="score", threshold=0.2
 ):
     """Get list with unique objects above threshold."""
     return (
