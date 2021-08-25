@@ -11,6 +11,6 @@ RUN pip install --no-cache-dir --upgrade --upgrade-strategy=eager -r requirement
 # Copy .src folder file to workdir /app
 COPY . ./
 #CMD ["app.lambda_handler"]
-CMD ["python","app.py"]
+CMD ["python","application.py"]
 
 
