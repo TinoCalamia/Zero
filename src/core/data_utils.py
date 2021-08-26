@@ -1,4 +1,5 @@
 """Utility functions for data processing."""
+import json
 import os
 import pickle
 import subprocess
@@ -9,6 +10,8 @@ import gspread
 import numpy as np
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
+import tensorflow as tf
+import tensorflow_hub as hub
 
 from src.core.image_utils import display_image, draw_boxes
 from src.core.nlp_utils import singularize_words
@@ -37,7 +40,9 @@ def write_image_file(name, path):
 
 
 @time_it
-def run_detector(image_path, show_image=False, thresh=0.0001):
+def run_detector(
+    image_path, show_image=False, thresh=0.0001, img_height=224, img_width=224
+):
     """
     Run detector and return detection summary.
 
@@ -52,53 +57,48 @@ def run_detector(image_path, show_image=False, thresh=0.0001):
     result (dict): Dictionary including detection results
 
     """
+
+    classifier = tf.keras.models.load_model(setup.export_path)
+
+    img_generator = tf.keras.preprocessing.image.ImageDataGenerator(
+        preprocessing_function=tf.keras.applications.mobilenet_v2.preprocess_input
+    )
+
+    ds = img_generator.flow_from_dataframe(
+        dataframe=pd.concat(
+            [
+                pd.Series(image_path, name="Filepath").astype(str),
+                pd.Series("dummy", name="Label").astype(str),
+            ],
+            axis=1,
+        ),
+        x_col="Filepath",
+        y_col="Label",
+        target_size=(224, 224),
+        color_mode="rgb",
+        class_mode="categorical",
+        batch_size=32,
+        shuffle=False,
+    )
+
     start_time = time.time()
-    unique_id = uuid.uuid4()
-    output_name = f"result_{unique_id}.json"
-    write_image_file(f"darknet/data/result_{unique_id}.txt", image_path)
-    # Copy image to darknet folder
-    subprocess.run(f"cp {image_path} darknet/", shell=True)
-
-    predict_command = [
-        "./darknet detector test",
-        "data/obj.data",
-        "cfg/yolov4-tiny-custom.cfg",
-        "Fruits_Best.weights",
-        image_path,
-        "-ext_output",
-        "-dont_show",
-        "-out",
-        str("data/" + output_name),
-        f"< data/result_{unique_id}.txt",
-        "-thresh",
-        str(thresh),
-    ]
-
-    subprocess.run(" ".join(predict_command), cwd="darknet/", shell=True)
-
+    preds = classifier.predict(ds)
     end_time = time.time()
 
     output_result = pd.DataFrame()
-    detected_class = []
-    probabilities = []
-    import json
+    detected_classes = []
+    confidences = []
 
-    with open(os.path.join("darknet/data", output_name)) as json_file:
-        data = json.load(json_file)
+    for confidence_level in preds[0]:
+        if confidence_level > 0.1:
+            position = list(preds[0]).index(confidence_level)
+            confidences.extend([float(confidence_level)])
+            detected_classes.extend([list(setup.class_labels)[position]])
 
-    for detection in data[0]["objects"]:
-        detected_class.extend([detection["name"]])
-        probabilities.extend([detection["confidence"]])
-
-    output_result["detected_objects"] = pd.Series(detected_class)
-    output_result["scores"] = pd.Series(probabilities)
+    output_result["detected_objects"] = pd.Series(detected_classes)
+    output_result["scores"] = pd.Series(confidences)
 
     print("Inference time: ", end_time - start_time)
-
-    # remove unneeded files
-    os.remove(os.path.join("darknet/data", output_name))
-    os.remove(os.path.join("darknet/data", f"result_{unique_id}.txt"))
-
     return output_result
 
 
@@ -133,7 +133,7 @@ def get_results_with_score(result, object_column="object", target_column="score"
 
 @time_it
 def get_unique_objects(
-    dataframe, object_column="object", target_column="score", threshold=0.25
+    dataframe, object_column="object", target_column="score", threshold=0.2
 ):
     """Get list with unique objects above threshold."""
     return (
